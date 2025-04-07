@@ -3,9 +3,13 @@ const { google } = require('googleapis');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: 'https://undergroundp.github.io'
+}));
 
 const PORT = process.env.PORT || 3000;
+
 
 // === 🔑 Replace with your actual credentials ===
 const CLIENT_ID = '60730614984-j9f2599fqdqhn8ddgvsobqah2vknv2i7.apps.googleusercontent.com';
