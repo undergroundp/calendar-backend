@@ -28,20 +28,39 @@ const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 // === 📅 API to get upcoming events ===
 app.get('/events', async (req, res) => {
   try {
-    const response = await calendar.events.list({
-      calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 20,
-      singleEvents: true,
-      orderBy: 'startTime',
+    const calendarIds = [
+      'primary',
+      'b1aa2462fec41240303550b155f90c1bfe7d46ca1e8df1c4b29d014cc0a7f878@group.calendar.google.com'  // ⬅️ Replace this
+    ];
+
+    const allEvents = [];
+
+    for (const calendarId of calendarIds) {
+      const response = await calendar.events.list({
+        calendarId,
+        timeMin: new Date().toISOString(),
+        maxResults: 20,
+        singleEvents: true,
+        orderBy: 'startTime',
+      });
+
+      allEvents.push(...(response.data.items || []));
+    }
+
+    // Optional: sort events by start time across calendars
+    allEvents.sort((a, b) => {
+      const aTime = new Date(a.start.dateTime || a.start.date);
+      const bTime = new Date(b.start.dateTime || b.start.date);
+      return aTime - bTime;
     });
 
-    res.json(response.data.items);
+    res.json(allEvents);
   } catch (err) {
     console.error('❌ Error fetching events:', err);
     res.status(500).json({ error: 'Failed to fetch events' });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
